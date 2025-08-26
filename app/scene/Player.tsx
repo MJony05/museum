@@ -5,6 +5,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { PointerLockControls } from '@react-three/drei';
 
 export default function Player() {
+  // disable eslint warning for any refs
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const controlsRef = useRef<any>(null);
   const keysRef = useRef({
     KeyW: false,
