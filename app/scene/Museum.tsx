@@ -1,6 +1,6 @@
 'use client';
 
-import { useGLTF, Html } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import { useEffect } from 'react';
 import * as THREE from 'three';
 import Umumtexnik from './exhibits/Umumtexnik';
