@@ -1,66 +1,92 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
-import { PointerLockControls as PointerLockControlsImpl } from 'three-stdlib';
+import { useRef, useEffect } from 'react';
+import { useThree, useFrame } from '@react-three/fiber';
 import { PointerLockControls } from '@react-three/drei';
+import * as THREE from 'three';
 
-export default function Player() {
-  const controlsRef = useRef<PointerLockControlsImpl>(null);
-  const keysRef = useRef({
-    KeyW: false,
-    KeyA: false,
-    KeyS: false,
-    KeyD: false,
-    ShiftLeft: false,
+export default function Player({ isModalOpen }: { isModalOpen: boolean }) {
+  const { camera } = useThree();
+  const controlsRef = useRef<any>(null);
+  const velocity = useRef(new THREE.Vector3());
+  const direction = useRef(new THREE.Vector3());
+  const moveState = useRef({
+    forward: false,
+    backward: false,
+    left: false,
+    right: false,
   });
 
-  // Keep camera at eye height (optional)
-  const { camera } = useThree();
+  // Unlock pointer when modal opens
   useEffect(() => {
-    camera.position.y = 1.6; // ~eye height
-  }, [camera]);
+    if (isModalOpen && controlsRef.current) {
+      controlsRef.current.unlock();
+    }
+  }, [isModalOpen]);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.code in keysRef.current)
-        keysRef.current[e.code as keyof typeof keysRef.current] = true;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.code) {
+        case 'KeyW':
+          moveState.current.forward = true;
+          break;
+        case 'KeyS':
+          moveState.current.backward = true;
+          break;
+        case 'KeyA':
+          moveState.current.left = true;
+          break;
+        case 'KeyD':
+          moveState.current.right = true;
+          break;
+      }
     };
-    const up = (e: KeyboardEvent) => {
-      if (e.code in keysRef.current)
-        keysRef.current[e.code as keyof typeof keysRef.current] = false;
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      switch (e.code) {
+        case 'KeyW':
+          moveState.current.forward = false;
+          break;
+        case 'KeyS':
+          moveState.current.backward = false;
+          break;
+        case 'KeyA':
+          moveState.current.left = false;
+          break;
+        case 'KeyD':
+          moveState.current.right = false;
+          break;
+      }
     };
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
     return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
 
-  useFrame((_, delta) => {
-    const controls = controlsRef.current;
-    if (!controls || !controls.isLocked) return;
+  useFrame((state, delta) => {
+    if (!controlsRef.current || isModalOpen) return;
 
-    // Movement speed (m/s)
-    const base = 2.5;
-    const sprint = 4.5;
-    const speed = (keysRef.current.ShiftLeft ? sprint : base) * delta;
+    const speed = 5;
+    velocity.current.set(0, 0, 0);
 
-    // Forward/back
-    const forward =
-      (keysRef.current.KeyW ? 1 : 0) - (keysRef.current.KeyS ? 1 : 0);
-    if (forward !== 0) controls.moveForward(forward * speed);
+    if (moveState.current.forward) velocity.current.z -= speed * delta;
+    if (moveState.current.backward) velocity.current.z += speed * delta;
+    if (moveState.current.left) velocity.current.x -= speed * delta;
+    if (moveState.current.right) velocity.current.x += speed * delta;
 
-    // Strafe
-    const strafe =
-      (keysRef.current.KeyD ? 1 : 0) - (keysRef.current.KeyA ? 1 : 0);
-    if (strafe !== 0) controls.moveRight(strafe * speed);
-
-    // Keep constant eye height if your model has flat floors
-    controls.getObject().position.y = 1.6;
+    controlsRef.current.moveRight(velocity.current.x);
+    controlsRef.current.moveForward(-velocity.current.z);
   });
 
-  // Click inside canvas to lock mouse; press ESC to release
-  return <PointerLockControls ref={controlsRef} />;
+  return (
+    <PointerLockControls
+      ref={controlsRef}
+      enabled={!isModalOpen} // Disable controls when modal is open
+    />
+  );
 }

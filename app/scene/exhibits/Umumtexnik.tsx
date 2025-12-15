@@ -1,5 +1,4 @@
 import { Html } from '@react-three/drei';
-import React from 'react';
 
 export default function Umumtexnik() {
   return (
@@ -9,6 +8,7 @@ export default function Umumtexnik() {
       distanceFactor={5}
       transform
       occlude
+      zIndexRange={[0, 0]}
     >
       <div
         style={{

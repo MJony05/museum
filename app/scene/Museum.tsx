@@ -1,13 +1,19 @@
 'use client';
 
-import { useGLTF } from '@react-three/drei';
-import { useEffect } from 'react';
+import { useGLTF, Html } from '@react-three/drei';
+import { useEffect, useState, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import Umumtexnik from './exhibits/Umumtexnik';
-import Rektor from './exhibits/Rektor';
 
-export default function Museum() {
+export default function Museum({
+  OnCardClick,
+}: {
+  OnCardClick: (cardData: {}) => void;
+}) {
   const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const { camera } = useThree();
+  const cardMeshes = useRef<{ [key: string]: THREE.Mesh }>({});
 
   useEffect(() => {
     scene.traverse((obj) => {
@@ -74,13 +80,165 @@ export default function Museum() {
     });
   }, [scene]);
 
+  // Handle click events
+  useEffect(() => {
+    const handleClick = () => {
+      if (hoveredCard) {
+        const cardData = cardDataList[hoveredCard as keyof typeof cardDataList];
+        if (cardData) {
+          OnCardClick(cardData); // Pass card data to parent
+        }
+      }
+    };
+
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, [hoveredCard, OnCardClick]);
+
+  // Raycast from center of screen every frame
+  useFrame(() => {
+    const raycaster = new THREE.Raycaster();
+    raycaster.layers.set(10);
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+    const meshArray = Object.values(cardMeshes.current);
+    const intersects = raycaster.intersectObjects(meshArray, false);
+
+    if (intersects.length > 0) {
+      const intersectedMesh = intersects[0].object;
+      const cardKey = Object.keys(cardMeshes.current).find(
+        (key) => cardMeshes.current[key] === intersectedMesh
+      );
+      if (cardKey && cardKey !== hoveredCard) {
+        setHoveredCard(cardKey);
+      }
+    } else {
+      if (hoveredCard !== null) {
+        setHoveredCard(null);
+      }
+    }
+  });
+
+  const InfoCard = ({
+    position,
+    title,
+    rotation = [0, 0, 0],
+    cardKey,
+  }: {
+    position: [number, number, number];
+    title: string;
+    rotation?: [number, number, number];
+    cardKey: string;
+  }) => {
+    const meshRef = useRef<THREE.Mesh>(null);
+
+    useEffect(() => {
+      if (meshRef.current) {
+        meshRef.current.layers.set(10);
+        cardMeshes.current[cardKey] = meshRef.current;
+      }
+      return () => {
+        delete cardMeshes.current[cardKey];
+      };
+    }, [cardKey]);
+
+    const isHovered = hoveredCard === cardKey;
+
+    return (
+      <group position={position} rotation={rotation}>
+        <mesh ref={meshRef}>
+          <planeGeometry args={[3.1, 1.8]} />
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+
+        <Html
+          center
+          distanceFactor={5}
+          transform
+          occlude
+          zIndexRange={[0, 0]}
+          style={{ pointerEvents: 'none' }}
+        >
+          <div
+            style={{
+              width: '310px',
+              height: '180px',
+              background: isHovered
+                ? 'rgba(0, 220, 220, 1)'
+                : 'rgba(0, 200, 200, 0.95)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: isHovered
+                ? '0 12px 40px rgba(0, 255, 255, 0.5)'
+                : '0 8px 32px rgba(0, 206, 209, 0.3)',
+              transition: 'all 0.2s',
+              transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+              border: isHovered ? '2px solid white' : '2px solid transparent',
+              pointerEvents: 'none',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <h1
+                style={{
+                  fontSize: '36px',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  lineHeight: '1.2',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  margin: 0,
+                }}
+              >
+                {title}
+              </h1>
+            </div>
+          </div>
+        </Html>
+      </group>
+    );
+  };
+
+  const cardDataList = {
+    rektor: {
+      title: 'UNIVERSITET REKTORI',
+      subtitle: 'Prof. Dexkanov Suxrob',
+      image: '/images/rektor.jpg',
+      content: `Professor Dexkanov Suxrob Osiyo xalqaro universitetining rektori.
+
+Beijing Language and Culture University (bakalavr) (2012-2016)
+Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
+    },
+    matematika: {
+      title: 'MATEMATIKA',
+      subtitle: 'Aniq fanlar asosi',
+      image: '/images/math.jpg',
+      content: `Matematika barcha aniq fanlarning asosidir. Bu fanda mantiq, hisob-kitob va muammolarni hal qilish ko'nikmalari rivojlanadi.`,
+    },
+  };
+
   return (
     <>
       <primitive object={scene} scale={1} />
 
-      {/* Smaller card to fit the display */}
-      <Rektor />
-      <Umumtexnik />
+      <InfoCard
+        position={[0, 1.1, -22]}
+        title="UNIVERSITET REKTORI"
+        cardKey="rektor"
+        rotation={[0, 0, 0]}
+      />
+
+      <InfoCard
+        position={[-11, 1.1, -19]}
+        title="MATEMATIKA"
+        rotation={[0, 0.3, 0]}
+        cardKey="matematika"
+      />
     </>
   );
 }

@@ -4,7 +4,13 @@ import React from 'react';
 
 export default function Rektor() {
   return (
-    <Html position={[0, 1.2, -22]} distanceFactor={5} transform occlude>
+    <Html
+      zIndexRange={[0, 0]}
+      position={[0, 1.2, -22]}
+      distanceFactor={5}
+      transform
+      occlude
+    >
       <div
         style={{
           width: '310px', // Reduced from 600px
