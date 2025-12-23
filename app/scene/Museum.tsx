@@ -214,11 +214,17 @@ export default function Museum({
 Beijing Language and Culture University (bakalavr) (2012-2016)
 Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
     },
-    matematika: {
+    umumtexnik: {
       title: '',
-      subtitle: 'Aniq fanlar asosi',
-      image: '/images/rektor.jpg',
-      content: `Matematika barcha aniq fanlarning asosidir. Bu fanda mantiq, hisob-kitob va muammolarni hal qilish ko'nikmalari rivojlanadi.`,
+      subtitle: 'Umumtexnik fanlar kafedrasi',
+      image: '/images/umumtexnik_logo.jpg',
+      content: `Kafedrada 2 yo‘nalishlar bo‘yicha talabalar tahsil olib boriyapti:
+
+– 60610100-Kompyuter ilmlari va dasturlash texnologiyalari (yo’nalishlar bo’yicha)
+
+– 60721500-Konchilik ishi (faoliyat turlari bo’yicha)
+
+Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matematika) fanlardan professor-o‘qituvchilar faoliyat olib bormoqda.`,
     },
   };
 
@@ -235,9 +241,9 @@ Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
 
       <InfoCard
         position={[-11, 1.1, -19]}
-        title="MATEMATIKA"
+        title="Umumtexnik fanlar"
         rotation={[0, 0.3, 0]}
-        cardKey="matematika"
+        cardKey="umumtexnik"
       />
     </>
   );
