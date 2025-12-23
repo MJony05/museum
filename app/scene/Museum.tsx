@@ -215,9 +215,9 @@ Beijing Language and Culture University (bakalavr) (2012-2016)
 Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
     },
     matematika: {
-      title: 'MATEMATIKA',
+      title: '',
       subtitle: 'Aniq fanlar asosi',
-      image: '/images/math.jpg',
+      image: '/images/rektor.jpg',
       content: `Matematika barcha aniq fanlarning asosidir. Bu fanda mantiq, hisob-kitob va muammolarni hal qilish ko'nikmalari rivojlanadi.`,
     },
   };

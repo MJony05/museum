@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment, Stats } from '@react-three/drei';
+import { Environment, Stats, useProgress, Html } from '@react-three/drei';
 import {
   EffectComposer,
   Bloom,
@@ -16,10 +16,57 @@ import dynamic from 'next/dynamic';
 const Museum = dynamic(() => import('../scene/Museum'), { ssr: false });
 const Player = dynamic(() => import('../scene/Player'), { ssr: false });
 
+// Loading component that tracks actual progress
+function Loader() {
+  const { progress } = useProgress();
+
+  return (
+    <Html center>
+      <div
+        style={{
+          width: '200px',
+          textAlign: 'center',
+          color: 'white',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '24px',
+            marginBottom: '20px',
+            fontWeight: 'bold',
+          }}
+        >
+          Loading Museum...
+        </div>
+        <div
+          style={{
+            width: '100%',
+            height: '4px',
+            background: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '2px',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: '#00ffff',
+              transition: 'width 0.3s',
+            }}
+          />
+        </div>
+        <div style={{ marginTop: '10px', fontSize: '14px' }}>
+          {Math.round(progress)}%
+        </div>
+      </div>
+    </Html>
+  );
+}
+
 export default function CanvasWrapper() {
   const [selectedCard, setSelectedCard] = useState<any>(null);
 
-  // Disable pointer lock when modal is open
   useEffect(() => {
     if (selectedCard) {
       document.exitPointerLock();
@@ -29,31 +76,35 @@ export default function CanvasWrapper() {
   return (
     <>
       <Canvas camera={{ fov: 75, position: [0, 1.6, 5] }} shadows>
-        <Suspense fallback={null}>
+        <Suspense fallback={<Loader />}>
           <Museum OnCardClick={setSelectedCard} />
           <Player isModalOpen={!!selectedCard} />
           <Environment files="/textures/newHdr.hdr" background />
           <Environment preset="city" />
+
+          <EffectComposer>
+            <Bloom
+              intensity={1.5}
+              luminanceThreshold={0.2}
+              luminanceSmoothing={0.9}
+              mipmapBlur
+            />
+            <DepthOfField
+              focusDistance={0.02}
+              focalLength={0.02}
+              bokehScale={2}
+              height={480}
+            />
+            <Noise
+              premultiply
+              blendFunction={BlendFunction.ADD}
+              opacity={0.05}
+            />
+            <Vignette eskil={false} offset={0.1} darkness={0.5} />
+          </EffectComposer>
+
+          <Stats />
         </Suspense>
-
-        <EffectComposer>
-          <Bloom
-            intensity={1.5}
-            luminanceThreshold={0.2}
-            luminanceSmoothing={0.9}
-            mipmapBlur
-          />
-          <DepthOfField
-            focusDistance={0.02}
-            focalLength={0.02}
-            bokehScale={2}
-            height={480}
-          />
-          <Noise premultiply blendFunction={BlendFunction.ADD} opacity={0.05} />
-          <Vignette eskil={false} offset={0.1} darkness={0.5} />
-        </EffectComposer>
-
-        <Stats />
       </Canvas>
 
       {/* Modal */}
@@ -88,7 +139,6 @@ export default function CanvasWrapper() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
             <button
               onClick={() => setSelectedCard(null)}
               style={{
@@ -119,7 +169,6 @@ export default function CanvasWrapper() {
               ×
             </button>
 
-            {/* Left side - Image */}
             <div
               style={{
                 flex: '0 0 45%',
@@ -155,7 +204,6 @@ export default function CanvasWrapper() {
               </h2>
             </div>
 
-            {/* Right side - Content */}
             <div style={{ flex: '1', padding: '60px 50px', overflowY: 'auto' }}>
               <h1
                 style={{
