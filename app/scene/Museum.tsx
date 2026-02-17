@@ -11,6 +11,7 @@ export default function Museum({
   OnCardClick: (cardData: {}) => void;
 }) {
   const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
+  const building = useGLTF('/models/building_oxu.glb');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const { camera } = useThree();
   const cardMeshes = useRef<{ [key: string]: THREE.Mesh }>({});
@@ -107,7 +108,7 @@ export default function Museum({
     if (intersects.length > 0) {
       const intersectedMesh = intersects[0].object;
       const cardKey = Object.keys(cardMeshes.current).find(
-        (key) => cardMeshes.current[key] === intersectedMesh
+        (key) => cardMeshes.current[key] === intersectedMesh,
       );
       if (cardKey && cardKey !== hoveredCard) {
         setHoveredCard(cardKey);
@@ -227,10 +228,29 @@ Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
 Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matematika) fanlardan professor-o‘qituvchilar faoliyat olib bormoqda.`,
     },
   };
+  const buildingRef = useRef<THREE.Group>(null);
+  const [hovered, setHovered] = useState(false);
 
   return (
     <>
       <primitive object={scene} scale={1} />
+      <group
+        ref={buildingRef}
+        position={[0, 0, 10]}
+        scale={hovered ? 2.2 : 2}
+        rotation={[0, Math.PI, 0]}
+        onClick={() => {
+          window.open('http://360.tuit.uz/');
+        }}
+        onPointerOver={() => {
+          setHovered(true);
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+        }}
+      >
+        <primitive object={building.scene} />
+      </group>
 
       <InfoCard
         position={[0, 1.1, -22]}
@@ -250,3 +270,4 @@ Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matem
 }
 
 useGLTF.preload('/models/borjomi-glTF-n7-v2.glb');
+useGLTF.preload('/models/building_oxu.glb');
