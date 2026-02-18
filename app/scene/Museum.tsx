@@ -6,9 +6,9 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function Museum({
-  OnCardClick,
+  OnCardClickAction,
 }: {
-  OnCardClick: (cardData: {}) => void;
+  OnCardClickAction: (cardData: {}) => void;
 }) {
   const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
   const building = useGLTF('/models/building_oxu.glb');
@@ -81,20 +81,33 @@ export default function Museum({
     });
   }, [scene]);
 
+  useEffect(() => {
+    building.scene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        const mesh = obj as THREE.Mesh;
+        if (!mesh.material) {
+          mesh.material = new THREE.MeshBasicMaterial({
+            color: new THREE.Color('#808080'), // Neutral gray color
+          });
+        }
+      }
+    });
+  }, [building]);
+
   // Handle click events
   useEffect(() => {
     const handleClick = () => {
       if (hoveredCard) {
         const cardData = cardDataList[hoveredCard as keyof typeof cardDataList];
         if (cardData) {
-          OnCardClick(cardData); // Pass card data to parent
+          OnCardClickAction(cardData); // Pass card data to parent
         }
       }
     };
 
     window.addEventListener('click', handleClick);
     return () => window.removeEventListener('click', handleClick);
-  }, [hoveredCard, OnCardClick]);
+  }, [hoveredCard, OnCardClickAction]);
 
   // Raycast from center of screen every frame
   useFrame(() => {
@@ -236,11 +249,13 @@ Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matem
       <primitive object={scene} scale={1} />
       <group
         ref={buildingRef}
-        position={[0, 0, 10]}
-        scale={hovered ? 2.2 : 2}
+        position={[0, 0, 13.9]}
+        scale={hovered ? 2.6 : 2.4}
         rotation={[0, Math.PI, 0]}
         onClick={() => {
-          window.open('http://360.tuit.uz/');
+          if (document.pointerLockElement) {
+            window.open('http://360.tuit.uz/');
+          }
         }}
         onPointerOver={() => {
           setHovered(true);

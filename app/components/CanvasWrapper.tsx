@@ -77,7 +77,7 @@ export default function CanvasWrapper() {
     <>
       <Canvas camera={{ fov: 75, position: [0, 1.6, 5] }} shadows>
         <Suspense fallback={<Loader />}>
-          <Museum OnCardClick={setSelectedCard} />
+          <Museum OnCardClickAction={setSelectedCard} />
           <Player isModalOpen={!!selectedCard} />
           <Environment files="/textures/newHdr.hdr" background />
           <Environment preset="city" />
@@ -88,12 +88,6 @@ export default function CanvasWrapper() {
               luminanceThreshold={0.2}
               luminanceSmoothing={0.9}
               mipmapBlur
-            />
-            <DepthOfField
-              focusDistance={0.02}
-              focalLength={0.02}
-              bokehScale={2}
-              height={480}
             />
             <Noise
               premultiply
