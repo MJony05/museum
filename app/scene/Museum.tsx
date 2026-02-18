@@ -95,10 +95,26 @@ export default function Museum({
     building.scene.traverse((obj) => {
       if ((obj as THREE.Mesh).isMesh) {
         const mesh = obj as THREE.Mesh;
+
+        // Disable shadows for performance optimization
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
+
+        // Simplify material if necessary
         if (!mesh.material) {
           mesh.material = new THREE.MeshBasicMaterial({
             color: new THREE.Color('#808080'), // Neutral gray color
           });
+        } else if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((mat) => {
+            if (mat instanceof THREE.MeshStandardMaterial) {
+              mat.roughness = 0.8;
+              mat.metalness = 0.1;
+            }
+          });
+        } else if (mesh.material instanceof THREE.MeshStandardMaterial) {
+          mesh.material.roughness = 0.8;
+          mesh.material.metalness = 0.1;
         }
       }
     });
