@@ -11,8 +11,11 @@ export default function Museum({
   OnCardClickAction: (cardData: {}) => void;
 }) {
   const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
-  const building = useGLTF('/models/building_oxu.glb');
+  const building = useGLTF('/models/Bino.glb');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [lastIntersectedCard, setLastIntersectedCard] = useState<string | null>(
+    null,
+  );
   const { camera } = useThree();
   const cardMeshes = useRef<{ [key: string]: THREE.Mesh }>({});
 
@@ -123,11 +126,13 @@ export default function Museum({
       const cardKey = Object.keys(cardMeshes.current).find(
         (key) => cardMeshes.current[key] === intersectedMesh,
       );
-      if (cardKey && cardKey !== hoveredCard) {
+      if (cardKey && cardKey !== lastIntersectedCard) {
+        setLastIntersectedCard(cardKey);
         setHoveredCard(cardKey);
       }
     } else {
-      if (hoveredCard !== null) {
+      if (lastIntersectedCard !== null) {
+        setLastIntersectedCard(null);
         setHoveredCard(null);
       }
     }
@@ -240,6 +245,18 @@ Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
 
 Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matematika) fanlardan professor-o‘qituvchilar faoliyat olib bormoqda.`,
     },
+    iqtisodiyot: {
+      title: '',
+      subtitle: 'Iqtisodiyot kafedrasi',
+      image: '/images/umumtexnik_logo.jpg',
+      content: `Kafedrada 2 yo‘nalishlar bo‘yicha talabalar tahsil olib boriyapti:
+
+– 60610100-Kompyuter ilmlari va dasturlash texnologiyalari (yo’nalishlar bo’yicha)
+
+– 60721500-Konchilik ishi (faoliyat turlari bo’yicha)
+
+Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matematika) fanlardan professor-o‘qituvchilar faoliyat olib bormoqda.`,
+    },
   };
   const buildingRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
@@ -277,12 +294,18 @@ Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matem
       <InfoCard
         position={[-11, 1.1, -19]}
         title="Umumtexnik fanlar"
-        rotation={[0, 0.3, 0]}
+        rotation={[0, 0.5, 0]}
         cardKey="umumtexnik"
+      />
+      <InfoCard
+        position={[11, 1.1, -19]}
+        title="Iqtisodiyot fanlar kafedrasi"
+        rotation={[0, -0.5, 0]}
+        cardKey="iqtisodiyot"
       />
     </>
   );
 }
 
 useGLTF.preload('/models/borjomi-glTF-n7-v2.glb');
-useGLTF.preload('/models/building_oxu.glb');
+useGLTF.preload('/models/Bino.glb');
