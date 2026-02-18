@@ -6,7 +6,6 @@ import { Environment, Stats, useProgress, Html } from '@react-three/drei';
 import {
   EffectComposer,
   Bloom,
-  DepthOfField,
   Noise,
   Vignette,
 } from '@react-three/postprocessing';

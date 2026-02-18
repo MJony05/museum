@@ -1,6 +1,6 @@
 'use client';
 
-import { useGLTF, Html } from '@react-three/drei';
+import { useGLTF, Html, useProgress } from '@react-three/drei';
 import { useEffect, useState, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -12,12 +12,19 @@ export default function Museum({
 }) {
   const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
   const building = useGLTF('/models/Bino.glb');
+  const { active, progress } = useProgress();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [lastIntersectedCard, setLastIntersectedCard] = useState<string | null>(
     null,
   );
   const { camera } = useThree();
   const cardMeshes = useRef<{ [key: string]: THREE.Mesh }>({});
+
+  useEffect(() => {
+    if (!active && progress === 100) {
+      console.log('Museum models fully loaded');
+    }
+  }, [active, progress]);
 
   useEffect(() => {
     scene.traverse((obj) => {
@@ -130,11 +137,9 @@ export default function Museum({
         setLastIntersectedCard(cardKey);
         setHoveredCard(cardKey);
       }
-    } else {
-      if (lastIntersectedCard !== null) {
-        setLastIntersectedCard(null);
-        setHoveredCard(null);
-      }
+    } else if (lastIntersectedCard !== null) {
+      setLastIntersectedCard(null);
+      setHoveredCard(null);
     }
   });
 
