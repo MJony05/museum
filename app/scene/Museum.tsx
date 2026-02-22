@@ -1,14 +1,16 @@
 'use client';
 
 import { useGLTF, Html, useProgress } from '@react-three/drei';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import InfoCard from '../components/InfoCard';
+import { cardDataList, ExhibitData } from '../data/exhibits';
 
 export default function Museum({
   OnCardClickAction,
 }: {
-  OnCardClickAction: (cardData: {}) => void;
+  OnCardClickAction: (cardData: ExhibitData) => void;
 }) {
   const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
   const building = useGLTF('/models/Bino.glb');
@@ -159,126 +161,14 @@ export default function Museum({
     }
   });
 
-  const InfoCard = ({
-    position,
-    title,
-    rotation = [0, 0, 0],
-    cardKey,
-  }: {
-    position: [number, number, number];
-    title: string;
-    rotation?: [number, number, number];
-    cardKey: string;
-  }) => {
-    const meshRef = useRef<THREE.Mesh>(null);
+  const registerCardMesh = useCallback((key: string, mesh: THREE.Mesh) => {
+    cardMeshes.current[key] = mesh;
+  }, []);
 
-    useEffect(() => {
-      if (meshRef.current) {
-        meshRef.current.layers.set(10);
-        cardMeshes.current[cardKey] = meshRef.current;
-      }
-      return () => {
-        delete cardMeshes.current[cardKey];
-      };
-    }, [cardKey]);
+  const unregisterCardMesh = useCallback((key: string) => {
+    delete cardMeshes.current[key];
+  }, []);
 
-    const isHovered = hoveredCard === cardKey;
-
-    return (
-      <group position={position} rotation={rotation}>
-        <mesh ref={meshRef}>
-          <planeGeometry args={[3.1, 1.8]} />
-          <meshBasicMaterial
-            transparent
-            opacity={0}
-            side={THREE.DoubleSide}
-            depthWrite={false}
-          />
-        </mesh>
-
-        <Html
-          center
-          distanceFactor={5}
-          transform
-          occlude
-          zIndexRange={[0, 0]}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div
-            style={{
-              width: '310px',
-              height: '180px',
-              background: isHovered
-                ? 'rgba(0, 220, 220, 1)'
-                : 'rgba(0, 200, 200, 0.95)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '12px',
-              padding: '24px',
-              boxShadow: isHovered
-                ? '0 12px 40px rgba(0, 255, 255, 0.5)'
-                : '0 8px 32px rgba(0, 206, 209, 0.3)',
-              transition: 'all 0.2s',
-              transform: isHovered ? 'scale(1.08)' : 'scale(1)',
-              border: isHovered ? '2px solid white' : '2px solid transparent',
-              pointerEvents: 'none',
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              <h1
-                style={{
-                  fontSize: '36px',
-                  fontWeight: 'bold',
-                  color: 'white',
-                  lineHeight: '1.2',
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  margin: 0,
-                }}
-              >
-                {title}
-              </h1>
-            </div>
-          </div>
-        </Html>
-      </group>
-    );
-  };
-
-  const cardDataList = {
-    rektor: {
-      title: 'UNIVERSITET REKTORI',
-      subtitle: 'Prof. Dexkanov Suxrob',
-      image: '/images/rektor.jpg',
-      content: `Professor Dexkanov Suxrob Osiyo xalqaro universitetining rektori.
-
-Beijing Language and Culture University (bakalavr) (2012-2016)
-Herriot Watt University (magistr) Biznes administratsiya (MBA) (2020-2021)`,
-    },
-    umumtexnik: {
-      title: '',
-      subtitle: 'Umumtexnik fanlar kafedrasi',
-      image: '/images/umumtexnik_logo.jpg',
-      content: `Kafedrada 2 yo‘nalishlar bo‘yicha talabalar tahsil olib boriyapti:
-
-– 60610100-Kompyuter ilmlari va dasturlash texnologiyalari (yo’nalishlar bo’yicha)
-
-– 60721500-Konchilik ishi (faoliyat turlari bo’yicha)
-
-Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matematika) fanlardan professor-o‘qituvchilar faoliyat olib bormoqda.`,
-    },
-    iqtisodiyot: {
-      title: '',
-      subtitle: 'Iqtisodiyot kafedrasi',
-      image: '/images/umumtexnik_logo.jpg',
-      content: `Kafedrada 2 yo‘nalishlar bo‘yicha talabalar tahsil olib boriyapti:
-
-– 60610100-Kompyuter ilmlari va dasturlash texnologiyalari (yo’nalishlar bo’yicha)
-
-– 60721500-Konchilik ishi (faoliyat turlari bo’yicha)
-
-Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matematika) fanlardan professor-o‘qituvchilar faoliyat olib bormoqda.`,
-    },
-  };
   const buildingRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
@@ -310,6 +200,9 @@ Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matem
         title="UNIVERSITET REKTORI"
         cardKey="rektor"
         rotation={[0, 0, 0]}
+        hoveredCard={hoveredCard}
+        registerCardMesh={registerCardMesh}
+        unregisterCardMesh={unregisterCardMesh}
       />
 
       <InfoCard
@@ -317,12 +210,18 @@ Kafedrada mutaxasislik yo‘nalishlardan tashqari tabiiy (fizika) va aniq (matem
         title="Umumtexnik fanlar"
         rotation={[0, 0.5, 0]}
         cardKey="umumtexnik"
+        hoveredCard={hoveredCard}
+        registerCardMesh={registerCardMesh}
+        unregisterCardMesh={unregisterCardMesh}
       />
       <InfoCard
         position={[11, 1.1, -19]}
         title="Iqtisodiyot fanlar kafedrasi"
         rotation={[0, -0.5, 0]}
         cardKey="iqtisodiyot"
+        hoveredCard={hoveredCard}
+        registerCardMesh={registerCardMesh}
+        unregisterCardMesh={unregisterCardMesh}
       />
     </>
   );

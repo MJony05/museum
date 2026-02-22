@@ -33,29 +33,12 @@ export default function Page() {
   }
 
   return (
-    <main style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+    <main className="w-screen h-screen overflow-hidden">
       <CanvasWrapper />
 
       {/* Crosshair */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 999995,
-          pointerEvents: 'none',
-        }}
-      >
-        <div
-          style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: 'white',
-            boxShadow: '0 0 4px rgba(0,0,0,0.5)',
-          }}
-        />
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[999995] pointer-events-none">
+        <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.5)]" />
       </div>
     </main>
   );
