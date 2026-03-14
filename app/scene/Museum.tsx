@@ -174,7 +174,7 @@ export default function Museum({
 
   return (
     <>
-      <primitive object={scene} scale={1} />
+      <primitive position={[0, -50, 0]} object={scene} scale={0.7} />
       <group
         ref={buildingRef}
         position={[0, 0, 13.9]}

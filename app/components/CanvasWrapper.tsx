@@ -17,11 +17,13 @@ const Museum = dynamic(() => import('../scene/Museum'), { ssr: false });
 const Player = dynamic(() => import('../scene/Player'), { ssr: false });
 
 // Loading component that tracks actual progress
-function Loader() {
-  const { progress } = useProgress();
+function LoadingOverlay() {
+  const { active, progress } = useProgress();
+
+  if (!active) return null;
 
   return (
-    <Html center>
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black">
       <div className="w-[200px] text-center text-white">
         <div className="text-2xl mb-5 font-bold">Loading Museum...</div>
         <div className="w-full h-1 bg-white/20 rounded-sm overflow-hidden">
@@ -32,7 +34,7 @@ function Loader() {
         </div>
         <div className="mt-2.5 text-sm">{Math.round(progress)}%</div>
       </div>
-    </Html>
+    </div>
   );
 }
 
@@ -47,26 +49,26 @@ export default function CanvasWrapper() {
 
   return (
     <>
+      <LoadingOverlay />
       <Canvas camera={{ fov: 75, position: [0, 1.6, 5] }} shadows>
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={null}>
           <Museum OnCardClickAction={setSelectedCard} />
           <Player isModalOpen={!!selectedCard} />
           <Environment files="/textures/newHdr.hdr" background />
-          <Environment preset="city" />
 
           <EffectComposer>
             <Bloom
-              intensity={1.5}
-              luminanceThreshold={0.2}
+              intensity={0.5}
+              luminanceThreshold={0.6}
               luminanceSmoothing={0.9}
               mipmapBlur
             />
             <Noise
               premultiply
               blendFunction={BlendFunction.ADD}
-              opacity={0.05}
+              opacity={0.03}
             />
-            <Vignette eskil={false} offset={0.1} darkness={0.5} />
+            <Vignette eskil={false} offset={0.1} darkness={0.6} />
           </EffectComposer>
 
           <Stats />

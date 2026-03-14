@@ -56,15 +56,15 @@ export default function InfoCard({
         style={{ pointerEvents: 'none' }}
       >
         <div
-          className={`w-[310px] h-[180px] rounded-xl p-6 transition-all duration-200 pointer-events-none backdrop-blur-md border-2
+          className={`w-[320px] h-[180px] rounded-2xl p-6 transition-all duration-300 pointer-events-none backdrop-blur-xl border flex flex-col justify-center items-center text-center
             ${
               isHovered
-                ? 'bg-[rgba(0,220,220,1)] shadow-[0_12px_40px_rgba(0,255,255,0.5)] scale-108 border-white'
-                : 'bg-[rgba(0,200,200,0.95)] shadow-[0_8px_32px_rgba(0,206,209,0.3)] scale-100 border-transparent'
+                ? 'bg-black/70 shadow-[0_8px_32px_rgba(0,0,0,0.5)] scale-105 border-white/50 text-cyan-300'
+                : 'bg-black/30 shadow-[0_4px_16px_rgba(0,0,0,0.2)] scale-100 border-white/10 text-white'
             }`}
         >
           <div className="relative">
-            <h1 className="text-4xl font-bold text-white leading-tight uppercase tracking-widest m-0">
+            <h1 className="text-3xl font-bold leading-tight uppercase tracking-wider m-0 drop-shadow-md">
               {title}
             </h1>
           </div>
