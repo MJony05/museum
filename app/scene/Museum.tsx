@@ -12,7 +12,7 @@ export default function Museum({
 }: {
   OnCardClickAction: (cardData: ExhibitData) => void;
 }) {
-  const { scene } = useGLTF('/models/borjomi-glTF-n7-v2.glb');
+  const { scene } = useGLTF('/models/MENU.glb');
   const building = useGLTF('/models/Bino.glb');
   const { active, progress } = useProgress();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export default function Museum({
     null,
   );
   const { camera } = useThree();
-  const cardMeshes = useRef<{ [key: string]: THREE.Mesh }>({});
+  const cardMeshes = useRef<{ [key: string]: THREE.Mesh; }>({});
 
   useEffect(() => {
     if (!active && progress === 100) {
@@ -227,5 +227,5 @@ export default function Museum({
   );
 }
 
-useGLTF.preload('/models/borjomi-glTF-n7-v2.glb');
+useGLTF.preload('/models/MENU.glb');
 useGLTF.preload('/models/Bino.glb');

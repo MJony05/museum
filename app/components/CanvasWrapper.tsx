@@ -54,7 +54,7 @@ export default function CanvasWrapper() {
         <Suspense fallback={null}>
           <Museum OnCardClickAction={setSelectedCard} />
           <Player isModalOpen={!!selectedCard} />
-          <Environment files="/textures/newHdr.hdr" background />
+          <Environment files="/textures/newbg2.jpg" background />
 
           <EffectComposer>
             <Bloom
